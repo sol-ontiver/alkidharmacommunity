@@ -1,0 +1,15 @@
+
+# Rust files
+
+/target
+**/*.rs.bk
+Cargo.lock
+/target/
+/pkg/
+/node_modules/
+/dist/
+*.log
+*.tmp
+*.swp
+*.swo
+*.DS_Store

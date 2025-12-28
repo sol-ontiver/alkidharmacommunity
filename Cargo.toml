@@ -1,0 +1,9 @@
+[package]
+name = "sol-cli"
+version = "0.1.0"
+edition = "2024"
+authors = ["Sol Ontiveros"]
+description = "A collection of Linux command line utilities customized for my use"
+
+[dependencies]
+clap = "2.27.1" # from crates.io
