@@ -12,6 +12,11 @@ pub struct SolCliParser {
 
 #[derive(Subcommand)]
 pub enum SolCliCommand {
+    /// Copy text to clipboard
+    Clip {
+        /// Text to copy to clipboard
+        text: String,
+    },
     /// Greet a person
     Greet {
         /// Name of the person to greet
@@ -25,7 +30,7 @@ pub enum SolCliCommand {
     /// Text formatting utilities
     #[command(subcommand)]
     Format(FormatCmd),
-    // Text formatting utilities (alias)
+    /// Text formatting utilities (alias)
     #[command(subcommand)]
     Fmt(FormatCmd),
 }

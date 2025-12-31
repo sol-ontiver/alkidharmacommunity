@@ -2,6 +2,7 @@
 Clap-based cli for various utilities
 */
 
+mod clip;
 mod sol_cli;
 mod format;
 
@@ -19,6 +20,9 @@ fn main() {
     let cli = SolCliParser::parse();
 
     match &cli.command {
+        SolCliCommand::Clip { text } => {
+            let _ = clip::clip(&text);
+        }
         SolCliCommand::Greet { name, count } => {
             greet(name.to_string(), *count);
         }
