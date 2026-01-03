@@ -5,10 +5,12 @@ Clap-based cli for various utilities
 mod clip;
 mod format;
 mod note;
+pub mod sol_config;
 
+use atty::Stream;
 use clap::{Parser, Subcommand};
 use crate::{format::FormatCmd, note::NoteCmd};
-use log::{info};
+use log::{info, debug};
 use env_logger;
 
 #[derive(Parser)]
@@ -19,6 +21,10 @@ pub struct SolCliParser {
     /// Increase verbosity
     #[arg(short, long, action = clap::ArgAction::SetTrue)]
     verbose: bool,
+
+    /// Increase verbosity
+    #[arg(short, long, action = clap::ArgAction::SetTrue)]
+    debug: bool,
 
     // /// Optional config file
     // #[arg(long)]
@@ -65,17 +71,35 @@ fn main() {
     let cli = SolCliParser::parse();
 
     // Base CLI options
-    if cli.verbose {
-        env_logger::Builder::new()
-            .filter_level(log::LevelFilter::Debug)
-            // .parse_default_env() // allow RUST_LOG to override
-            .init();
-        info!("Verbose mode is on");
+    if atty::is(Stream::Stdout) {
+        if cli.debug {
+            env_logger::Builder::new()
+                .target(env_logger::Target::Stderr)
+                .filter_level(log::LevelFilter::Trace)
+                .init();
+            debug!("Debug mode is on");
+        }
+        else if cli.verbose {
+            env_logger::Builder::new()
+                .target(env_logger::Target::Stderr)
+                .filter_level(log::LevelFilter::Debug)
+                .init();
+            info!("Verbose mode is on");
+        }
+        else {
+            env_logger::Builder::new()
+                .target(env_logger::Target::Stderr)
+                .filter_level(log::LevelFilter::Off)
+                .parse_default_env() // allow RUST_LOG to override
+                .init();
+        }
     }
     else {
+        // If not running in a terminal, disable logging so it 
+        // doesn't interfere with output, pipe, etc.
         env_logger::Builder::new()
+            .target(env_logger::Target::Stderr)
             .filter_level(log::LevelFilter::Off)
-            .parse_default_env() // allow RUST_LOG to override
             .init();
     }
 

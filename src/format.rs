@@ -1,6 +1,4 @@
-/*
-Text formatting utility
-*/
+///Text formatting utility
 
 use clap::{Subcommand};
 
