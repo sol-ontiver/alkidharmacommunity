@@ -9,6 +9,53 @@ use chrono::Local;
 /// Notes are stored in this directory within the app directory
 const NOTES_DIR: &str = "notes";
 
+/***********************************************
+    * CLI Structures
+***********************************************/
+#[derive(Args, Debug)]
+pub struct NoteArgs {
+    /// Directly append text to a note
+    #[arg(short, long, default_value_t = String::new())]
+    append: String,
+
+    /// Name of the note (optional)
+    #[arg(short, long)]
+    name: Option<String>,
+}
+
+#[derive(Parser)]
+pub struct NoteCmd {
+    #[command(subcommand)]
+    pub subcommand: Option<NoteSubCmd>,
+
+    #[command(flatten)]
+    pub args: NoteArgs,
+}
+
+#[derive(Subcommand)]
+pub enum NoteSubCmd {
+    /// View a note
+    View(NoteArgs),
+}
+
+/***********************************************
+    * Note Structures
+***********************************************/
+#[derive(Debug)]
+pub struct NoteConfig {
+    pub editor: String,
+}
+impl std::fmt::Display for NoteConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NoteConfig {{ ")?;
+        write!(f, "Editor: {}", self.editor)?;
+        write!(f, " }}")
+    }
+}
+
+/***********************************************
+    * Private Functions
+***********************************************/
 fn get_notes_dir() -> std::path::PathBuf {
     let app_dir = get_app_dir();
     let notes_path = app_dir.join(NOTES_DIR);
@@ -46,35 +93,18 @@ fn write_line(note_path: &str, content: &str) {
     writeln!(file, "{}", content).expect("Could not write to note file");
 }
 
-#[derive(Args, Debug)]
-pub struct NoteArgs {
-    /// Directly append text to a note
-    #[arg(short, long, default_value_t = String::new())]
-    append: String,
 
-    /// Name of the note (optional)
-    #[arg(short, long)]
-    name: Option<String>,
-}
-
-#[derive(Parser)]
-pub struct NoteCmd {
-    #[command(subcommand)]
-    pub subcommand: Option<NoteSubCmd>,
-
-    #[command(flatten)]
-    pub args: NoteArgs,
-}
-
-#[derive(Subcommand)]
-pub enum NoteSubCmd {
-    /// View a note
-    View(NoteArgs),
-}
-
+/***********************************************
+    * Public Functions
+***********************************************/
 pub fn handle(cmd: &NoteCmd) {
     let notes_path = get_notes_dir();
     info!("Notes directory: {:?}", notes_path);
+
+    let note_cfg = NoteConfig {
+        editor: String::from("nano"),
+    };
+    info!("Note configuration: {}", note_cfg);
 
     match &cmd.subcommand {
         Some(NoteSubCmd::View(args)) => {
