@@ -4,6 +4,9 @@ use clap::{Args, Parser, Subcommand};
 use log::{debug, info, warn};
 use crate::{sol_config::get_app_dir};
 use chrono::Local;
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::fs;
 // use std::io::{Write, stdout};
 
 /// Notes are stored in this directory within the app directory
@@ -36,6 +39,16 @@ pub struct NoteCmd {
 pub enum NoteSubCmd {
     /// View a note
     View(NoteArgs),
+
+    Merge {
+        /// Name of the note to merge from
+        note_to_merge: String,
+        /// Optional name for note to merge into
+        into: Option<String>, 
+        /// Preserve the original note after merging (deletes by default)
+        #[arg(long, action = clap::ArgAction::SetTrue)]
+        preserve_original: bool,
+    }
 }
 
 /***********************************************
@@ -65,9 +78,9 @@ fn get_notes_dir() -> std::path::PathBuf {
     notes_path
 }
 
-fn get_note_path(args: &NoteArgs, notes_dir: &std::path::PathBuf) -> String {
+fn get_note_path(name: &Option<String>, notes_dir: &std::path::PathBuf) -> String {
     let note_name: String;
-    match &args.name {
+    match name {
         Some(name) => {
             note_name = name.to_owned();
         }
@@ -80,10 +93,24 @@ fn get_note_path(args: &NoteArgs, notes_dir: &std::path::PathBuf) -> String {
     format!("{}/{}.md", notes_dir.to_str().unwrap(), note_name)
 }
 
-fn write_line(note_path: &str, content: &str) {
-    use std::fs::OpenOptions;
-    use std::io::Write;
+fn merge_notes(from: &str, into: &str, preserve: &bool) -> std::io::Result<()> {
+    use std::fs;
 
+    let from_content = fs::read_to_string(from)?;
+    let mut into_file = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(into)?;
+
+    writeln!(into_file, "\n{}", from_content)?;
+    if !preserve {
+        fs::remove_file(from)?;
+    }
+
+    Ok(())
+}
+
+fn write_line(note_path: &str, content: &str) {
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
@@ -110,11 +137,18 @@ pub fn handle(cmd: &NoteCmd) {
         Some(NoteSubCmd::View(args)) => {
             warn!("View note command is not yet implemented. Args: {:?}", args);
         }
+        Some(NoteSubCmd::Merge { note_to_merge, into, preserve_original }) => {
+            debug!("Note to merge: {}", note_to_merge);
+            let note_path = get_note_path(into, &notes_path);
+            debug!("Merging into note: {}", note_path);
+            let _ = merge_notes(&note_to_merge, &note_path, &preserve_original);
+            info!("Merged note {} into {}", note_to_merge, note_path);
+        }
         None => {
             debug!("Writing note. Args: {:?}", cmd.args);
-            debug!("Note: {:?}", get_note_path(&cmd.args, &notes_path));
+            debug!("Note: {:?}", get_note_path(&cmd.args.name, &notes_path));
             if !cmd.args.append.is_empty() {
-                let note_path = get_note_path(&cmd.args, &notes_path);
+                let note_path = get_note_path(&cmd.args.name, &notes_path);
                 write_line(&note_path, &cmd.args.append);
                 info!("Appended to note: {}", note_path);
             } else {
