@@ -94,8 +94,6 @@ fn get_note_path(name: &Option<String>, notes_dir: &std::path::PathBuf) -> Strin
 }
 
 fn merge_notes(from: &str, into: &str, preserve: &bool) -> std::io::Result<()> {
-    use std::fs;
-
     let from_content = fs::read_to_string(from)?;
     let mut into_file = fs::OpenOptions::new()
         .create(true)
