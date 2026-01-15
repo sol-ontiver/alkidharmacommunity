@@ -1,13 +1,15 @@
 /// Notes utility. Make and view notes.
 
-use clap::{Args, Parser, Subcommand};
-use log::{debug, info, warn};
-use crate::{sol_config::get_app_dir};
-use chrono::Local;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::fs;
 // use std::io::{Write, stdout};
+
+use clap::{Args, Parser, Subcommand};
+use log::{debug, info, warn};
+use crate::{sol_config::get_app_dir};
+use chrono::Local;
+use termimad::{ MadSkin};
 
 /// Notes are stored in this directory within the app directory
 const NOTES_DIR: &str = "notes";
@@ -73,6 +75,19 @@ impl std::fmt::Display for NoteConfig {
 /***********************************************
     * Private Functions
 ***********************************************/
+fn display_note(note_path: &str) -> std::io::Result<()> {
+    // You can also customize a skin:
+    let skin = MadSkin::default();
+    // skin.bold.set_fg(termimad::crossterm::style::Color::Yellow);
+
+    let lines = fs::read_to_string(note_path)?;
+
+    println!();
+    skin.print_text(&lines);
+    println!();
+    Ok(())
+}
+
 fn get_notes_dir() -> std::path::PathBuf {
     let app_dir = get_app_dir();
     let notes_path = app_dir.join(NOTES_DIR);
@@ -156,6 +171,7 @@ pub fn handle(cmd: &NoteCmd) {
     match &cmd.subcommand {
         Some(NoteSubCmd::View) => {
             warn!("View note command is not yet implemented.");
+            let _ = display_note(note.as_str());
         }
         Some(NoteSubCmd::Merge { note_to_merge, preserve_original }) => {
             debug!("Note to merge: {}", note_to_merge);
