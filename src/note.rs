@@ -15,6 +15,15 @@ const NOTES_DIR: &str = "notes";
 /***********************************************
     * CLI Structures
 ***********************************************/
+#[derive(Parser)]
+pub struct NoteCmd {
+    #[command(subcommand)]
+    pub subcommand: Option<NoteSubCmd>,
+
+    #[command(flatten)]
+    pub args: NoteArgs,
+}
+
 #[derive(Args, Debug)]
 pub struct NoteArgs {
     /// Directly append text to a note
@@ -26,25 +35,16 @@ pub struct NoteArgs {
     name: Option<String>,
 }
 
-#[derive(Parser)]
-pub struct NoteCmd {
-    #[command(subcommand)]
-    pub subcommand: Option<NoteSubCmd>,
-
-    #[command(flatten)]
-    pub args: NoteArgs,
-}
-
 #[derive(Subcommand)]
 pub enum NoteSubCmd {
     /// View a note
-    View(NoteArgs),
+    View,
 
     Merge {
         /// Name of the note to merge from
         note_to_merge: String,
-        /// Optional name for note to merge into
-        into: Option<String>, 
+        // /// Optional name for note to merge into
+        // into: Option<String>, 
         /// Preserve the original note after merging (deletes by default)
         #[arg(long, action = clap::ArgAction::SetTrue)]
         preserve_original: bool,
@@ -143,30 +143,30 @@ fn write_line(note_path: &str, content: &str) {
     * Public Functions
 ***********************************************/
 pub fn handle(cmd: &NoteCmd) {
-    let notes_path = get_notes_dir();
-    info!("Notes directory: {:?}", notes_path);
-
     let note_cfg = NoteConfig {
         editor: String::from("nano"),
     };
     info!("Note configuration: {}", note_cfg);
 
+    let notes_dir = get_notes_dir();
+    info!("Notes directory: {:?}", notes_dir);
+    let note = get_note_path(&cmd.args.name, &notes_dir);
+    info!("Using note: {}", note);
+
     match &cmd.subcommand {
-        Some(NoteSubCmd::View(args)) => {
-            warn!("View note command is not yet implemented. Args: {:?}", args);
+        Some(NoteSubCmd::View) => {
+            warn!("View note command is not yet implemented.");
         }
-        Some(NoteSubCmd::Merge { note_to_merge, into, preserve_original }) => {
+        Some(NoteSubCmd::Merge { note_to_merge, preserve_original }) => {
             debug!("Note to merge: {}", note_to_merge);
-            let note_path = get_note_path(into, &notes_path);
-            debug!("Merging into note: {}", note_path);
-            let _ = merge_notes(&note_to_merge, &note_path, &preserve_original);
-            info!("Merged note {} into {}", note_to_merge, note_path);
+            debug!("Merging into note: {}", note);
+            let _ = merge_notes(&note_to_merge, &note, &preserve_original);
+            info!("Merged note {} into {}", note_to_merge, note);
         }
         Some(NoteSubCmd::List) => {
-            debug!("Listing notes in directory: {:?}", notes_path);
-            match list_notes(&notes_path) {
+            debug!("Listing notes in directory: {:?}", notes_dir);
+            match list_notes(&notes_dir) {
                 Ok(notes) => {
-                    info!("Notes found:");
                     for note in notes {
                         println!("{}", note);
                     }
@@ -178,11 +178,10 @@ pub fn handle(cmd: &NoteCmd) {
         }
         None => {
             debug!("Writing note. Args: {:?}", cmd.args);
-            debug!("Note: {:?}", get_note_path(&cmd.args.name, &notes_path));
+            debug!("Note: {:?}", get_note_path(&cmd.args.name, &notes_dir));
             if !cmd.args.append.is_empty() {
-                let note_path = get_note_path(&cmd.args.name, &notes_path);
-                write_line(&note_path, &cmd.args.append);
-                info!("Appended to note: {}", note_path);
+                write_line(&note, &cmd.args.append);
+                info!("Appended to note: {}", note);
             } else {
                 warn!("No content to append. Use --append to add text to the note directly.");
                 // println!("{}", get_note_path(&cmd.args, &notes_path) );
