@@ -48,7 +48,11 @@ pub enum NoteSubCmd {
         /// Preserve the original note after merging (deletes by default)
         #[arg(long, action = clap::ArgAction::SetTrue)]
         preserve_original: bool,
-    }
+    },
+
+    /// List all notes
+    #[command(alias = "ls")]
+    List,
 }
 
 /***********************************************
@@ -91,6 +95,22 @@ fn get_note_path(name: &Option<String>, notes_dir: &std::path::PathBuf) -> Strin
     }
 
     format!("{}/{}.md", notes_dir.to_str().unwrap(), note_name)
+}
+
+fn list_notes(notes_dir: &std::path::PathBuf) -> std::io::Result<Vec<String>> {
+    let mut notes = Vec::new();
+    for entry in fs::read_dir(notes_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_file() {
+            if let Some(name) = path.file_name() {
+                if let Some(name_str) = name.to_str() {
+                    notes.push(name_str.to_string());
+                }
+            }
+        }
+    }
+    Ok(notes)
 }
 
 fn merge_notes(from: &str, into: &str, preserve: &bool) -> std::io::Result<()> {
@@ -141,6 +161,20 @@ pub fn handle(cmd: &NoteCmd) {
             debug!("Merging into note: {}", note_path);
             let _ = merge_notes(&note_to_merge, &note_path, &preserve_original);
             info!("Merged note {} into {}", note_to_merge, note_path);
+        }
+        Some(NoteSubCmd::List) => {
+            debug!("Listing notes in directory: {:?}", notes_path);
+            match list_notes(&notes_path) {
+                Ok(notes) => {
+                    info!("Notes found:");
+                    for note in notes {
+                        println!("{}", note);
+                    }
+                }
+                Err(e) => {
+                    warn!("Could not list notes: {}", e);
+                }
+            }
         }
         None => {
             debug!("Writing note. Args: {:?}", cmd.args);
