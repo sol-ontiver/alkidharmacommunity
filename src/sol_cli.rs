@@ -5,11 +5,12 @@ Clap-based cli for various utilities
 mod clip;
 mod format;
 mod note;
+mod dvd;
 pub mod sol_config;
 
 use atty::Stream;
 use clap::{Parser, Subcommand};
-use crate::{format::FormatCmd, note::NoteCmd};
+use crate::{format::FormatCmd, note::NoteCmd, dvd::DvdCmd};
 use log::{info, debug};
 use env_logger;
 
@@ -59,6 +60,8 @@ pub enum SolCliCommand {
     Fmt(FormatCmd),
     /// Notes utilities (subcommand defaults to write)
     Note(NoteCmd),
+    /// DVD utilities, requires HandBrakeCLI
+    Dvd(DvdCmd),
 }
 
 fn greet(name: String, count: u8) {
@@ -119,6 +122,9 @@ fn main() {
         }
         SolCliCommand::Note(cmd) => {
             note::handle(cmd);
+        }
+        SolCliCommand::Dvd(cmd) => {
+            dvd::handle(cmd);
         }
     }
 }
