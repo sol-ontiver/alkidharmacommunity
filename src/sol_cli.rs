@@ -7,6 +7,7 @@ mod format;
 mod note;
 mod dvd;
 pub mod sol_config;
+pub mod progress;
 
 use atty::Stream;
 use clap::{Parser, Subcommand};
