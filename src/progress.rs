@@ -7,7 +7,7 @@ pub struct ProgressBar {
 impl ProgressBar {
     // Public methods
     pub fn new(current: &u32, total: &u32) -> Self {
-        let mut progress = ProgressBar { current: *current, total: *total };
+        let progress = ProgressBar { current: *current, total: *total };
         progress.render();
         progress
     }
