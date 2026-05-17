@@ -5,13 +5,15 @@ Clap-based cli for various utilities
 mod clip;
 mod format;
 mod note;
+mod pod;
 mod dvd;
+pub mod rss;
 pub mod sol_config;
 pub mod progress;
 
 use atty::Stream;
 use clap::{Parser, Subcommand};
-use crate::{format::FormatCmd, note::NoteCmd, dvd::DvdCmd};
+use crate::{format::FormatCmd, note::NoteCmd, pod::PodCmd, dvd::DvdCmd};
 use log::{info, debug};
 use env_logger;
 
@@ -61,6 +63,8 @@ pub enum SolCliCommand {
     Fmt(FormatCmd),
     /// Notes utilities (subcommand defaults to write)
     Note(NoteCmd),
+    /// Podcast utilities
+    Pod(PodCmd),
     /// DVD utilities, requires HandBrakeCLI
     Dvd(DvdCmd),
 }
@@ -86,7 +90,7 @@ fn main() {
         else if cli.verbose {
             env_logger::Builder::new()
                 .target(env_logger::Target::Stderr)
-                .filter_level(log::LevelFilter::Debug)
+                .filter_level(log::LevelFilter::Info)
                 .init();
             info!("Verbose mode is on");
         }
@@ -126,6 +130,9 @@ fn main() {
         }
         SolCliCommand::Dvd(cmd) => {
             dvd::handle(cmd);
+        }
+        SolCliCommand::Pod(cmd) => {
+            pod::handle(cmd);
         }
     }
 }

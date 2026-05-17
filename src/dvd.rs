@@ -12,9 +12,6 @@ const DEFAULT_INPUT: &str = "/dev/sr0";
 pub struct DvdCmd {
     #[command(subcommand)]
     pub subcommand: Option<DvdSubCmd>,
-
-    // #[command(flatten)]
-    // pub args: NoteArgs,
 }
 
 #[derive(Subcommand)]
