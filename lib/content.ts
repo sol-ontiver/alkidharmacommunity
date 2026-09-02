@@ -16,6 +16,7 @@ export type Post = {
 export type CommunityEvent = {
   slug: string;
   title: string;
+  recurring?: string;
   start: string;
   end?: string;
   location: string;
@@ -57,6 +58,7 @@ export function getEvents(): CommunityEvent[] {
   return readMarkdownFiles("events", (data, slug, content) => ({
     slug,
     title: String(data.title ?? slug),
+    recurring: String(data.recurring ?? slug),
     start: String(data.start ?? ""),
     end: data.end ? String(data.end) : undefined,
     location: String(data.location ?? ""),
