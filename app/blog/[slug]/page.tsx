@@ -6,7 +6,9 @@ import { getPost, getPosts } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
 export function generateStaticParams() {
-  return getPosts().map((post) => ({ slug: post.slug }));
+  const posts = getPosts();
+  if (posts.length === 0) return [{ slug: "_empty" }];
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -17,7 +19,16 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = getPost(slug);
   if (!post) return {};
-  return { title: post.title };
+  return {
+    title: post.title,
+    description: post.excerpt,
+    keywords: [...post.tags, "meditation", "dharma", "west seattle"],
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || undefined,
+      type: "article",
+    },
+  };
 }
 
 export default async function PostPage({
@@ -30,17 +41,17 @@ export default async function PostPage({
   if (!post) notFound();
 
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 py-16">
+    <article className="page-container">
       <Link
         href="/blog"
-        className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+        className="back-link"
       >
         ← All posts
       </Link>
-      <h1 className="mt-4 mb-3 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+      <h1 className="mt-4 mb-3 page-title">
         {post.title}
       </h1>
-      <p className="mb-10 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mb-10 text-sm muted-text">
         {formatDate(post.date)}
       </p>
       <Markdown content={post.content} />

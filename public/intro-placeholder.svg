@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Intro placeholder">
+  <rect width="800" height="400" fill="#f5f0e6"/>
+  <circle cx="400" cy="180" r="80" fill="none" stroke="#a5541f" stroke-width="8"/>
+  <circle cx="400" cy="180" r="55" fill="none" stroke="#c98a4b" stroke-width="8"/>
+  <circle cx="400" cy="180" r="30" fill="none" stroke="#e0c8a8" stroke-width="8"/>
+  <text x="400" y="330" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#a8a29e">Intro image</text>
+</svg>

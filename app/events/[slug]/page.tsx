@@ -4,9 +4,12 @@ import { notFound } from "next/navigation";
 import Markdown from "@/components/markdown";
 import { getEvent, getEvents } from "@/lib/content";
 import { formatDate } from "@/lib/format";
+import { eventJsonLd } from "@/lib/schema";
 
 export function generateStaticParams() {
-  return getEvents().map((event) => ({ slug: event.slug }));
+  const events = getEvents();
+  if (events.length === 0) return [{ slug: "_empty" }];
+  return events.map((event) => ({ slug: event.slug }));
 }
 
 export async function generateMetadata({
@@ -17,7 +20,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const event = getEvent(slug);
   if (!event) return {};
-  return { title: event.title };
+  return {
+    title: event.title,
+    description: event.excerpt,
+    keywords: [
+      "meditation event",
+      "buddhist event seattle",
+      "dharma",
+      event.location,
+    ].filter(Boolean),
+    openGraph: {
+      title: event.title,
+      description: event.excerpt || undefined,
+    },
+  };
 }
 
 export default async function EventPage({
@@ -28,19 +44,30 @@ export default async function EventPage({
   const { slug } = await params;
   const event = getEvent(slug);
   if (!event) notFound();
+  const eventLd = eventJsonLd({
+    title: event.title,
+    start: event.start,
+    end: event.end,
+    time: event.time,
+    location: event.location || "Alki United Church of Christ",
+  });
 
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 py-16">
+    <article className="page-container">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventLd) }}
+      />
       <Link
         href="/events"
-        className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+        className="back-link"
       >
         ← All events
       </Link>
-      <h1 className="mt-4 mb-3 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+      <h1 className="mt-4 mb-3 page-title">
         {event.title}
       </h1>
-      <p className="mb-10 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mb-10 text-sm muted-text">
         {formatDate(event.start)}
         {event.location ? ` · ${event.location}` : ""}
         <p>
