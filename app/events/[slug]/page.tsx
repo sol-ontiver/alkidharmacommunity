@@ -43,6 +43,9 @@ export default async function EventPage({
       <p className="mb-10 text-sm text-zinc-500 dark:text-zinc-400">
         {formatDate(event.start)}
         {event.location ? ` · ${event.location}` : ""}
+        <p>
+          {event.time ? `${event.time}` : ""}
+        </p>
       </p>
       <Markdown content={event.content} />
     </article>

@@ -16,10 +16,10 @@ export default function EventsPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-16">
       <h1 className="mb-2 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-        Events
+        Events and Notices
       </h1>
       <p className="mb-10 text-zinc-600 dark:text-zinc-400">
-        Sits, classes, and gatherings open to everyone.
+        Community events, cancellation notices, etc.
       </p>
 
       <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">

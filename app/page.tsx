@@ -13,14 +13,40 @@ export default function Home() {
           Alki Dharma Community
         </h1>
         <p className="max-w-xl text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-          A Buddhist meditation group in West Seattle
+          A Buddhist meditation group in West Seattle.
+          <br /><br />
+          Join us every Monday night at Alki UCC for a meditation, reading, and discussion..
+          Everyone is welcome and all skill levels appreciated! Cushions and chairs provided,
+          accessibility needs considered. Donations appreciated but not required.
+
         </p>
+      </section>
+
+      <section className="mb-16">
+        <h2 className="mb-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+          Monday Meeting
+        </h2>
+        <p>
+          We meet every Monday night. Doors open at 6:45 PM, and meeting is from
+          7-8:30 PM. Please try to arrive on time, as we tend to close the doors
+          once we are seated for meditation.
+        </p>
+        <h2 className="pt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+          Location
+        </h2>
+        <p>
+          Meetings are held at Alki United Church of Christ <br />
+          6115 SW Hinds St, Seattle, WA 98116
+        </p>
+      </section>
+
+      {/* <section>
         <div className="mt-8 flex gap-4">
           <Link
             href="/events"
             className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
-            Upcoming events
+            Notices and upcoming events
           </Link>
           <Link
             href="/about"
@@ -29,13 +55,13 @@ export default function Home() {
             About us
           </Link>
         </div>
-      </section>
+      </section> */}
 
       <section className="mb-14">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Upcoming events
-          </h2>
+          <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+            Notices and Community Events
+          </h3>
           <Link
             href="/events"
             className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -67,9 +93,9 @@ export default function Home() {
 
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+          <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
             Latest news
-          </h2>
+          </h3>
           <Link
             href="/blog"
             className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -77,25 +103,39 @@ export default function Home() {
             View all
           </Link>
         </div>
-        <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
-          {posts.map((post) => (
-            <li key={post.slug} className="py-4">
-              <Link href={`/blog/${post.slug}`} className="group">
-                <span className="block text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                  {formatDate(post.date)}
-                </span>
-                <span className="mt-1 block font-medium text-zinc-900 group-hover:underline dark:text-zinc-50">
-                  {post.title}
-                </span>
-                {post.excerpt && (
-                  <span className="mt-1 block text-sm text-zinc-600 dark:text-zinc-400">
-                    {post.excerpt}
+        {posts.length > 0 ? (
+          <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            {posts.map((post) => (
+              <li key={post.slug} className="py-4">
+                <Link href={`/blog/${post.slug}`} className="group">
+                  <span className="block text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                    {formatDate(post.date)}
                   </span>
-                )}
-              </Link>
-            </li>
-          ))}
-        </ul>
+                  <span className="mt-1 block font-medium text-zinc-900 group-hover:underline dark:text-zinc-50">
+                    {post.title}
+                  </span>
+                  {post.excerpt && (
+                    <span className="mt-1 block text-sm text-zinc-600 dark:text-zinc-400">
+                      {post.excerpt}
+                    </span>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>) :
+          (
+            <p className="text-zinc-500 dark:text-zinc-400">
+              No blog posts yet.
+            </p>
+          )}
+      </section>
+
+      <section className="mt-16 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+        <div className="flex justify-center">
+          <p className="text-center text-xs tracking-wide text-zinc-500 dark:text-zinc-400">
+            This site is currently under construction. Please don&apos;t be too put off if it looks a little drab right now. I&apos;m doing my best over here.
+          </p>
+        </div>
       </section>
     </div>
   );

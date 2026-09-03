@@ -17,20 +17,32 @@ export default function About() {
           discuss the Dharma with one another.
         </p>
         <p>
-          We do not follow any specific tradition. The structure of our meetings are as follows:
-          {/* Make this a list */}
-          * Introductions and welcome
-          * Mindfulness meditation (20 minutes)
-          * Selected Reading
-          * Discussion
-          * Closing, selection of volunteer for next week's reading
-          * Closing Meditation (5 minutes)
+          We do not follow any specific tradition. The structure of our meetings is as follows:
         </p>
+        <ul className="list-disc space-y-2 pl-6">
+          <li>Introductions and welcome</li>
+          <li>Mindfulness meditation (20 minutes)</li>
+          <li>Selected Reading</li>
+          <li>Discussion</li>
+          <li>Closing, selection of volunteer for next week's reading</li>
+          <li>Closing Meditation (5 minutes)</li>
+        </ul>
         <h2 className="pt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Location
+          Donations
         </h2>
         <p>
-          We meet at Alki United Church of Christ
+          Please direct all donations to our gracious hosts at{" "}
+          <a
+            href="https://www.alkiucc.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-zinc-300 underline-offset-2 hover:decoration-zinc-500 dark:decoration-zinc-700"
+          >
+            Alki UCC
+          </a>. Follow the
+          link and click "Donate", then select "Alki Dharma Meditation Group"
+
+
         </p>
         <h2 className="pt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
           Newsletter
