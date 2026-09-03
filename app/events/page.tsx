@@ -5,7 +5,7 @@ import { formatDate, isUpcoming } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "Events",
-  description: "Upcoming events at the Alki Dharma Community.",
+  description: "Upcoming special events at the Alki Dharma Community.",
 };
 
 export default function EventsPage() {
@@ -19,7 +19,7 @@ export default function EventsPage() {
         Events and Notices
       </h1>
       <p className="mb-10 text-zinc-600 dark:text-zinc-400">
-        Community events, cancellation notices, etc.
+        Special event announcements can be found here.
       </p>
 
       <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">

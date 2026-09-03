@@ -45,7 +45,7 @@ export default function BlogPage() {
         </ul>
       ) : (
         <p className="text-zinc-500 dark:text-zinc-400">
-          No posts yet. Add one to the content/posts folder and rebuild.
+          No posts yet.
         </p>
       )}
     </div>

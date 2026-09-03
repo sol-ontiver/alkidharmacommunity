@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s | Alki Dharma Community",
   },
   description:
-    "A Zen practice community in West Seattle. News, events, and information about zazen and dharma study.",
+    "A buddhist meditation community in West Seattle. Information and updates on group activities",
 };
 
 const navLinks = [

@@ -28,6 +28,13 @@ export default function About() {
           <li>Closing Meditation (5 minutes)</li>
         </ul>
         <h2 className="pt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+          How to join
+        </h2>
+        <p>
+          Just show up! Nothing is required to join, and you are welcome to come as frequently (or infrequently)
+          as you like.
+        </p>
+        <h2 className="pt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
           Donations
         </h2>
         <p>
@@ -49,7 +56,8 @@ export default function About() {
         </h2>
         <p>
           We have a mailing list where we will ocassionally send out schedule updates,
-          holiday schedules, etc. You can sign up on the{" "}
+          holiday schedules, etc. If you would like to be updated on the group's activities, 
+          feel free to sign up on the{" "}
           <a
             href="/contact"
             className="underline decoration-zinc-300 underline-offset-2 hover:decoration-zinc-500 dark:decoration-zinc-700"
