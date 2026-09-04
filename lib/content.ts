@@ -13,11 +13,20 @@ export type Post = {
   content: string;
 };
 
+export type Resource = {
+  slug: string;
+  title: string;
+  description: string;
+  content: string;
+};
+
 export type CommunityEvent = {
   slug: string;
   title: string;
+  recurring?: string;
   start: string;
   end?: string;
+  time?: string;
   location: string;
   excerpt: string;
   content: string;
@@ -53,12 +62,26 @@ export function getPost(slug: string): Post | undefined {
   return getPosts().find((post) => post.slug === slug);
 }
 
+export function getResources(): Resource[] {
+  return readMarkdownFiles("resources", (data, slug, content) => ({
+    slug,
+    title: String(data.title ?? slug),
+    description: String(data.description ?? ""),
+    content,
+  })).sort((a, b) => a.title.localeCompare(b.title));
+}
+
+export function getResource(slug: string): Resource | undefined {
+  return getResources().find((resource) => resource.slug === slug);
+}
+
 export function getEvents(): CommunityEvent[] {
   return readMarkdownFiles("events", (data, slug, content) => ({
     slug,
     title: String(data.title ?? slug),
     start: String(data.start ?? ""),
     end: data.end ? String(data.end) : undefined,
+    time: data.time ? String(data.time) : undefined,
     location: String(data.location ?? ""),
     excerpt: String(data.excerpt ?? ""),
     content,

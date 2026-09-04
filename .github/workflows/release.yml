@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - "release/**"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check required secrets are configured
+        shell: bash
+        run: |
+          missing=()
+          for s in FTP_SERVER FTP_USERNAME FTP_PASSWORD FTP_SERVER_DIR; do
+            if [ -z "${{ secrets[s] }}" ]; then
+              missing+=("$s")
+            fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Skip: deployment needs these GitHub secrets configured before this workflow can run."
+            printf 'Missing: %s\n' "${missing[@]}"
+            echo ""
+            echo "For setup guidance, see AGENTS docs / hosting notes:"
+            echo "  In your AccuWeb cPanel, grab your FTP host, username, password, and web root (usually public_html/)."
+            echo "  Then add these secrets under Repo → Settings → Secrets and variables → Actions:"
+            echo "    1. FTP_SERVER      – AccuWeb FTP host (e.g. ftp.yourdomain.com or your IP)"
+            echo "    2. FTP_USERNAME    – your FTP account username"
+            echo "    3. FTP_PASSWORD    – your FTP account password"
+            echo "    4. FTP_SERVER_DIR  – web root to deploy into (e.g. public_html/)"
+            echo ""
+            echo "Once all 4 are set, push to a release/* branch again to deploy."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Deploy to AccuWeb (FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          local-dir: out/
+          dangerous-clean-slate: false

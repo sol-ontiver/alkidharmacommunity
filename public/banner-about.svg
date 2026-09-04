@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" role="img" aria-label="About page banner placeholder">
+  <rect width="1200" height="400" fill="#efe9dc"/>
+  <path d="M0 400 C 200 240, 400 480, 600 300 S 1000 160, 1200 320 L 1200 400 Z" fill="#a5541f" opacity="0.15"/>
+  <path d="M0 400 C 250 300, 450 520, 700 360 S 1050 220, 1200 360 L 1200 400 Z" fill="#a5541f" opacity="0.1"/>
+  <circle cx="600" cy="180" r="70" fill="#fff" opacity="0.6"/>
+  <circle cx="600" cy="180" r="70" fill="none" stroke="#a5541f" stroke-width="6"/>
+  <text x="600" y="290" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#a8a29e">About banner</text>
+</svg>

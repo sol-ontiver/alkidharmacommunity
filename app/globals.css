@@ -1,22 +1,35 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* MAIN COLOR THEMES */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --light-color: #eeece7;
+  --dark-color: #1f301f;
+}
+
+:root {
+  /* --background: #ffffff; */
+  --background: var(--light-color);
+  /* --foreground: #171717; */
+  --foreground: var(--dark-color);
+  --meeting: #a5541f;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-meeting: var(--meeting);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* --background: #0a0a0a; */
+    --background: var(--dark-color);
+    /* --foreground: #ededed; */
+    --foreground: var(--light-color);
+    --meeting: #8c4518;
   }
 }
 
@@ -24,4 +37,74 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .page-container {
+    @apply mx-auto w-full max-w-3xl px-4 py-16;
+  }
+
+  .page-title {
+    @apply text-4xl font-semibold tracking-tight text-foreground;
+  }
+
+  .section-title {
+    @apply text-xl font-semibold text-foreground;
+  }
+
+  .body-text {
+    @apply leading-8 text-zinc-600 dark:text-zinc-400;
+  }
+
+  .muted-text {
+    @apply text-zinc-500 dark:text-zinc-400;
+  }
+
+  .meta-label {
+    @apply block text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400;
+  }
+
+  .list-title {
+    @apply mt-1 block font-medium text-zinc-900 group-hover:underline dark:text-zinc-50;
+  }
+
+  .list-excerpt {
+    @apply mt-1 block text-sm text-zinc-600 dark:text-zinc-400;
+  }
+
+  .list-divided {
+    @apply divide-y divide-zinc-200 dark:divide-zinc-800;
+  }
+
+  .back-link {
+    @apply text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100;
+  }
+
+  .nav-link {
+    @apply text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100;
+  }
+
+  .inline-link {
+    @apply underline decoration-zinc-300 underline-offset-2 hover:decoration-zinc-500 dark:decoration-zinc-700;
+  }
+
+  .primary-cta {
+    @apply rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200;
+  }
+
+  .secondary-cta {
+    @apply rounded-full border border-zinc-300 bg-zinc-100/80 px-5 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-200 dark:hover:bg-zinc-700;
+  }
+}
+
+@media print {
+  header,
+  footer {
+    @apply hidden;
+  }
+
+  .print-area .back-link,
+  .print-area button {
+    @apply hidden;
+  }
 }

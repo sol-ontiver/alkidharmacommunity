@@ -5,7 +5,19 @@ import { formatDate, isUpcoming } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "Events",
-  description: "Upcoming events at the Alki Dharma Community.",
+  description:
+    "Upcoming meditation and dharma events at the Alki Dharma Community in West Seattle, Seattle, WA.",
+  keywords: [
+    "meditation events seattle",
+    "buddhist events west seattle",
+    "dharma talks seattle",
+    "meditation retreat seattle",
+  ],
+  openGraph: {
+    title: "Events | Alki Dharma Community",
+    description:
+      "Upcoming special events at the Alki Dharma Community in West Seattle.",
+  },
 };
 
 export default function EventsPage() {
@@ -14,30 +26,30 @@ export default function EventsPage() {
   const past = all.filter((e) => !isUpcoming(e));
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-16">
-      <h1 className="mb-2 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-        Events
+    <div className="page-container">
+      <h1 className="mb-2 page-title">
+        Events and Notices
       </h1>
-      <p className="mb-10 text-zinc-600 dark:text-zinc-400">
-        Sits, classes, and gatherings open to everyone.
+      <p className="mb-10 muted-text">
+        Special event announcements can be found here.
       </p>
 
-      <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+      <h2 className="mb-4 section-title">
         Upcoming
       </h2>
       {upcoming.length > 0 ? (
-        <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
+        <ul className="list-divided">
           {upcoming.map((event) => (
             <li key={event.slug} className="py-5">
               <Link href={`/events/${event.slug}`} className="group block">
-                <span className="block text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <span className="meta-label">
                   {formatDate(event.start)} · {event.location}
                 </span>
-                <span className="mt-1 block text-lg font-medium text-zinc-900 group-hover:underline dark:text-zinc-50">
+                <span className="list-title text-lg">
                   {event.title}
                 </span>
                 {event.excerpt && (
-                  <span className="mt-1 block text-sm text-zinc-600 dark:text-zinc-400">
+                  <span className="list-excerpt">
                     {event.excerpt}
                   </span>
                 )}
@@ -46,22 +58,22 @@ export default function EventsPage() {
           ))}
         </ul>
       ) : (
-        <p className="mb-10 text-zinc-500 dark:text-zinc-400">
+        <p className="mb-10 muted-text">
           No upcoming events scheduled yet. Check back soon.
         </p>
       )}
 
       {past.length > 0 && (
         <>
-          <h2 className="mb-4 mt-12 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+          <h2 className="mb-4 mt-12 section-title">
             Past events
           </h2>
-          <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
+          <ul className="list-divided">
             {past.map((event) => (
               <li key={event.slug} className="py-4">
                 <Link
                   href={`/events/${event.slug}`}
-                  className="group block text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                  className="nav-link group block"
                 >
                   <span className="block text-xs uppercase tracking-wide">
                     {formatDate(event.start)}

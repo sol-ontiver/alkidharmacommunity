@@ -5,37 +5,49 @@ import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "Blog",
-  description: "News and reflections from the Alki Dharma Community.",
+  description:
+    "News, announcements, and reflections from the Alki Dharma Community, a Buddhist meditation group in West Seattle.",
+  keywords: [
+    "meditation blog seattle",
+    "buddhist news seattle",
+    "dharma reflections",
+    "west seattle sangha",
+  ],
+  openGraph: {
+    title: "Blog | Alki Dharma Community",
+    description:
+      "News and reflections from the Alki Dharma Community in West Seattle.",
+  },
 };
 
 export default function BlogPage() {
   const posts = getPosts();
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-16">
-      <h1 className="mb-2 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+    <div className="page-container">
+      <h1 className="mb-2 page-title">
         Blog
       </h1>
-      <p className="mb-10 text-zinc-600 dark:text-zinc-400">
+      <p className="mb-10 muted-text">
         News and announcements from the community.
       </p>
 
       {posts.length > 0 ? (
-        <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
+        <ul className="list-divided">
           {posts.map((post) => (
             <li key={post.slug} className="py-6">
               <Link href={`/blog/${post.slug}`} className="group block">
-                <span className="block text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <span className="meta-label">
                   {formatDate(post.date)}
                   {post.tags.length > 0
                     ? ` · ${post.tags.join(", ")}`
                     : ""}
                 </span>
-                <span className="mt-1 block text-xl font-medium text-zinc-900 group-hover:underline dark:text-zinc-50">
+                <span className="list-title text-xl">
                   {post.title}
                 </span>
                 {post.excerpt && (
-                  <span className="mt-1 block text-sm text-zinc-600 dark:text-zinc-400">
+                  <span className="list-excerpt">
                     {post.excerpt}
                   </span>
                 )}
@@ -44,8 +56,8 @@ export default function BlogPage() {
           ))}
         </ul>
       ) : (
-        <p className="text-zinc-500 dark:text-zinc-400">
-          No posts yet. Add one to the content/posts folder and rebuild.
+        <p className="muted-text">
+          No posts yet.
         </p>
       )}
     </div>
