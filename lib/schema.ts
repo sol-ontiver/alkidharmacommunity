@@ -18,7 +18,9 @@ function toIsoDateTime(date: string, time?: string): string {
   const meridian = (match[3] || "").toUpperCase();
   if (meridian === "PM" && hours < 12) hours += 12;
   if (meridian === "AM" && hours === 12) hours = 0;
-  const d = new Date(`${date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`);
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return new Date().toISOString();
+  d.setHours(hours, minutes, 0, 0);
   return d.toISOString();
 }
 

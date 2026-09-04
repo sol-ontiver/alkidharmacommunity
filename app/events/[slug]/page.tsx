@@ -67,13 +67,11 @@ export default async function EventPage({
       <h1 className="mt-4 mb-3 page-title">
         {event.title}
       </h1>
-      <p className="mb-10 text-sm muted-text">
+      <div className="mb-10 text-sm muted-text">
         {formatDate(event.start)}
         {event.location ? ` · ${event.location}` : ""}
-        <p>
-          {event.time ? `${event.time}` : ""}
-        </p>
-      </p>
+        {event.time ? ` · ${event.time}` : ""}
+      </div>
       <Markdown content={event.content} />
     </article>
   );
