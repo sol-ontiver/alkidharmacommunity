@@ -9,13 +9,20 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 6
+    permissions:
+      contents: write
     steps:
       - name: Check required secrets are configured
         shell: bash
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
         run: |
           missing=()
           for s in FTP_SERVER FTP_USERNAME FTP_PASSWORD FTP_SERVER_DIR; do
-            if [ -z "${{ secrets[s] }}" ]; then
+            if [ -z "${!s}" ]; then
               missing+=("$s")
             fi
           done
@@ -53,6 +60,17 @@ jobs:
       - name: Build static site
         run: npm run build
 
+      - name: Derive release version
+        id: version
+        run: |
+          version="${GITHUB_REF_NAME#release/}"
+          version="${version#v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid release version: \"$version\" (expected semver like 1.2.3)"
+            exit 1
+          fi
+          echo "tag=v${version}" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to AccuWeb (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
@@ -61,4 +79,15 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
           local-dir: out/
+          protocol: ftps
+          security: loose
           dangerous-clean-slate: false
+
+      - name: Create release tag
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -fa "$TAG" -m "Release $TAG" "${{ github.sha }}"
+          git push origin --force "$TAG"
