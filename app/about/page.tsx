@@ -22,7 +22,7 @@ export default function About() {
   return (
     <div className="page-container">
       <img
-        src="/banner-about.svg"
+        src="/incense.jpg"
         alt="Alki Dharma Community banner"
         className="mb-8 h-auto w-full max-w-3xl rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-800"
       />

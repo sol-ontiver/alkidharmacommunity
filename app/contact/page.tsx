@@ -24,7 +24,9 @@ export default function Contact() {
       </h1>
       <p className="mb-8 max-w-xl body-text">
         Please feel free to reach out if you would like more info, and we will get back to you
-        as soon as possible.
+        as soon as possible. <br />
+        We occasionally send out notifications via email. Please let us know if you would like
+        to be added to our mailing list.<br />
       </p>
 
       <div className="mb-10 space-y-6 muted-text">
