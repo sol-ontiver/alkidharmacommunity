@@ -16,7 +16,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(weeklyJsonLd) }}
       />
       <img
-        src="/banner-placeholder.svg"
+        src="/gold_buddha_statue.jpg"
         alt="Alki Dharma Community banner"
         className="mb-0 h-auto w-full border-b border-zinc-200 dark:border-zinc-800"
       />
@@ -39,7 +39,7 @@ export default function Home() {
           and all experience levels are appreciated! 
         </p>
         <img
-          src="/intro-placeholder.svg"
+          src="/buddha_statue.jpg"
           alt="Alki Dharma Community meditation"
           className="mt-6 h-auto w-full max-w-xl rounded-xl border border-zinc-200 shadow-sm dark:border-zinc-800"
         />
@@ -156,7 +156,7 @@ export default function Home() {
       <div className="mt-12 w-full bg-meeting text-white">
         <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-8 px-4 py-12 sm:flex-row">
           <img
-            src="/monday-placeholder.svg"
+            src="/lotus_in_water.jpg"
             alt="Monday meeting"
             className="h-56 w-56 shrink-0 rounded-xl border border-white/20 object-cover sm:h-64 sm:w-64"
           />
