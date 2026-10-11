@@ -88,14 +88,13 @@ fn parse_channel_item(item_xml: &str) -> Result<TrackData, RssError> {
         comments: String::new(),
         enclosure: String::new(),
         guid: String::new(),
-        
         pubDate: String::new(),
         source: String::new(),
     };
 
     loop {
         match reader.read_event() {
-            Ok(Event::Start(ref e)) => {
+            Ok(Event::Start(ref e)) | Ok(Event::Empty(ref e)) => {
                 match e.name().as_ref() {
                     b"title" => {
                         let title_bytes = reader.read_text(e.name()).expect("Failed to read title text");
@@ -106,8 +105,16 @@ fn parse_channel_item(item_xml: &str) -> Result<TrackData, RssError> {
                         track.description = reader.decoder().decode(&description_bytes).expect("Failed to decode description text").to_string();
                     }
                     b"link" => {
-                        let link_bytes = reader.read_text(e.name()).expect("Failed to read link text");
-                        track.link = reader.decoder().decode(&link_bytes).expect("Failed to decode link text").to_string();
+                        match reader.read_event(){
+                            Ok(Event::CData(ref data_event)) => {
+                                track.link = reader.decoder().decode(data_event).expect("Failed to decode CDATA").to_string();
+                            }
+                            _ => {
+                                warn!("Item link is not a CDATA element.");
+                                let link_bytes = reader.read_text(e.name()).expect("Failed to read link text");
+                                track.link = reader.decoder().decode(&link_bytes).expect("Failed to decode link text").to_string();
+                            }
+                        }
                     }
                     b"author" => {
                         let author_bytes = reader.read_text(e.name()).expect("Failed to read author text");
@@ -122,8 +129,13 @@ fn parse_channel_item(item_xml: &str) -> Result<TrackData, RssError> {
                         track.comments = reader.decoder().decode(&comments_bytes).expect("Failed to decode comments text").to_string();
                     }
                     b"enclosure" => {
-                        let enclosure_bytes = reader.read_text(e.name()).expect("Failed to read enclosure text");
-                        track.enclosure = reader.decoder().decode(&enclosure_bytes).expect("Failed to decode enclosure text").to_string();
+                        let mut url = String::new();
+                        for attr in e.attributes().flatten() {
+                            if attr.key.as_ref() == b"url" {
+                                url = reader.decoder().decode(&attr.value).expect("Failed to decode enclosure url").to_string();
+                            }
+                        }
+                        track.enclosure = url;
                     }
                     b"guid" => {
                         let guid_bytes = reader.read_text(e.name()).expect("Failed to read guid text");
