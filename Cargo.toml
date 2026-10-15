@@ -19,4 +19,6 @@ env_logger = "0.11"
 log = "0.4"
 quick-xml = "0.40.1"
 reqwest = { version = "0.13.3", features = ["blocking"] }
+serde = { version = "1.0", features = ["derive"] }
 termimad = "0.34.1"
+toml = "0.9"

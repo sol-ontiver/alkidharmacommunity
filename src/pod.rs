@@ -1,13 +1,39 @@
 ///Podcatching utility
-
 use std::error::Error;
-use std::io;
 use std::fs;
+use std::io;
+use std::path::PathBuf;
+use std::process::exit;
 
 use clap::{Parser, Subcommand};
 use log::{debug, info, warn};
+use serde;
 
-use crate::rss::{parse_from_string, RSSFeed};
+use crate::rss::{RSSFeed, parse_from_string};
+use crate::sol_config::{BaseConfig, get_default_downloads_dir, load_config};
+
+const APP_NAME: &str = "pod";
+
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+struct PodConfig {
+    #[serde(flatten)]
+    pub base: BaseConfig,
+    pub save_dir: PathBuf,
+    pub tracked_urls: Vec<String>,
+}
+
+impl Default for PodConfig {
+    fn default() -> Self {
+        Self {
+            base: BaseConfig {
+                app_name: APP_NAME.to_string(),
+                log_level: "info".to_string(),
+            },
+            save_dir: get_default_downloads_dir(),
+            tracked_urls: Vec::new(),
+        }
+    }
+}
 
 #[derive(Parser)]
 pub struct PodCmd {
@@ -20,6 +46,12 @@ pub struct PodCmd {
 
 #[derive(Subcommand)]
 pub enum PodSubCmd {
+    /// Add a feed to tracked feeds
+    AddFeed {
+        /// RSS feed URL
+        url: String,
+    },
+
     /// Scan for new podcast episodes and info
     Scan {
         /// Optional URL to scan. If not provided, will scan all configured feeds.
@@ -51,6 +83,12 @@ fn read_from_url(url: &str, max_tracks: usize) -> Result<RSSFeed, Box<dyn Error>
     Ok(feed)
 }
 
+/// Add feed to list of RSS feeds to track
+fn add_feed(_url: &String) {
+    warn!("ADD FEED NOT SUPPORTED YET");
+    exit(-1);
+}
+
 /// Scan a given url or list of urls.
 fn scan(url: Option<String>) {
     let mut feed_urls = Vec::new();
@@ -77,7 +115,10 @@ fn list(url: String) {
     info!("Feed: {}", feed.channel_title);
 
     for item in feed.items {
-        info!("{}:{} ({}) - [{}]", item.guid, item.title, item.pubDate, item.link);
+        info!(
+            "{}:{} ({}) - [{}]",
+            item.guid, item.title, item.pubDate, item.link
+        );
     }
 }
 
@@ -85,7 +126,11 @@ fn pull_latest(url: String, target_dir: String) {
     let feed = read_from_url(&url, 1).expect(&format!("Failed to get feed from url [{}]", url));
     fs::create_dir_all(&target_dir).expect("Failed to create target directory");
     let item = &feed.items[0];
-    let media_url = if item.enclosure.is_empty() { &item.link } else { &item.enclosure };
+    let media_url = if item.enclosure.is_empty() {
+        &item.link
+    } else {
+        &item.enclosure
+    };
     let mut response = reqwest::blocking::get(media_url).expect("Rss Feed GET failed");
     let output_file = format!("{}/{}.mp3", target_dir, &item.title);
     let mut file_out = fs::File::create(output_file).expect("File creation failed");
@@ -93,14 +138,21 @@ fn pull_latest(url: String, target_dir: String) {
 }
 
 pub fn handle(cmd: &PodCmd) {
+    let _cfg: PodConfig = load_config(APP_NAME).expect("Failed to load app config!");
     match cmd.subcommand {
+        Some(PodSubCmd::AddFeed { ref url }) => {
+            add_feed(&url);
+        }
         Some(PodSubCmd::Scan { ref url }) => {
             scan(url.clone());
         }
         Some(PodSubCmd::List { ref url }) => {
             list(url.clone());
         }
-        Some(PodSubCmd::PullLatest {ref url, ref target_dir}) => {
+        Some(PodSubCmd::PullLatest {
+            ref url,
+            ref target_dir,
+        }) => {
             pull_latest(url.clone(), target_dir.clone());
         }
         None => {
