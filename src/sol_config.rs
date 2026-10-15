@@ -36,19 +36,43 @@ fn get_app_config_path(app_name: &str) -> std::path::PathBuf {
     config_name
 }
 
+pub trait Config: DeserializeOwned + Default + Serialize {
+    fn app_name(&self) -> &str;
+
+    fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let cfg_filename = get_app_config_path(&self.app_name());
+
+        // create app directory if it doesn't exist.
+        if let Some(parent) = cfg_filename.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
+        let toml_content = toml::ser::to_string_pretty(self)?;
+        fs::write(&cfg_filename, toml_content)?;
+
+        Ok(())
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(default)]
 pub struct BaseConfig {
-    pub app_name: String,
+    pub app: String,
     pub log_level: String,
 }
 
 impl Default for BaseConfig {
     fn default() -> Self {
         Self {
-            app_name: "Base Config".into(),
+            app: "Base_Config".into(),
             log_level: "info".to_string(),
         }
+    }
+}
+
+impl Config for BaseConfig {
+    fn app_name(&self) -> &str {
+        &self.app
     }
 }
 
@@ -57,19 +81,13 @@ impl Default for BaseConfig {
 /// implement the actual config fields
 pub fn load_config<T>(app_name: &str) -> Result<T, Box<dyn std::error::Error>>
 where
-    T: DeserializeOwned + Default + Serialize,
+    T: Config,
 {
     let cfg_filename = get_app_config_path(app_name);
-
-    // create app directory if it doesn't exist.
-    if let Some(parent) = cfg_filename.parent() {
-        fs::create_dir_all(parent)?;
-    }
     // create the default config, if no file exists
     if !cfg_filename.exists() {
         let default_config = T::default();
-        let toml_content = toml::to_string_pretty(&default_config)?;
-        fs::write(&cfg_filename, toml_content)?;
+        let _ = default_config.save();
     }
 
     let content = fs::read_to_string(&cfg_filename)?;
