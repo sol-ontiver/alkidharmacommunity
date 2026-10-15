@@ -89,12 +89,7 @@ fn display_note(note_path: &str) -> std::io::Result<()> {
 }
 
 fn get_notes_dir() -> std::path::PathBuf {
-    let app_dir = get_app_dir();
-    let notes_path = app_dir.join(NOTES_DIR);
-    if !notes_path.exists() {
-        std::fs::create_dir_all(&notes_path).expect("Could not create notes directory");
-    }
-    notes_path
+    get_app_dir(NOTES_DIR)
 }
 
 fn get_note_path(name: &Option<String>, notes_dir: &std::path::PathBuf) -> String {
