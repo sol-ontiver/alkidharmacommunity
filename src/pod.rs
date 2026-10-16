@@ -13,13 +13,21 @@ use crate::rss::{RSSFeed, parse_from_string};
 use crate::sol_config::{BaseConfig, Config, get_default_downloads_dir, load_config};
 
 const APP_NAME: &str = "pod";
+const DEFAULT_SCAN_MAX_TRACKS: usize = 25;
+
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+pub struct PodcastInfo {
+    pub name: String,
+    pub description: String,
+    pub url: String,
+}
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 struct PodConfig {
     #[serde(flatten)]
     pub base: BaseConfig,
     pub save_dir: PathBuf,
-    pub tracked_urls: Vec<String>,
+    pub tracked_podcasts: Vec<PodcastInfo>,
 }
 
 impl Default for PodConfig {
@@ -30,7 +38,7 @@ impl Default for PodConfig {
                 log_level: "info".to_string(),
             },
             save_dir: get_default_downloads_dir(),
-            tracked_urls: Vec::new(),
+            tracked_podcasts: Vec::new(),
         }
     }
 }
@@ -43,22 +51,25 @@ impl Config for PodConfig {
 
 impl PodConfig {
     fn add_tracked_url(&mut self, url: String) {
-        for u in &self.tracked_urls {
-            if *u == url {
-                debug!("URL {} is already tracked.", u);
+        for p in &self.tracked_podcasts {
+            if *p.url == url {
+                debug!("URL {} is already tracked.", p.url);
                 return;
             }
         }
 
-        if scan(Some(url.clone()), Some(1)) == 0 {
-            debug!(
-                "Couldn't find valid RSS feed at {}. Not adding to tracked list",
-                url
-            );
+        let feed = scan(url.clone(), Some(1));
+        if feed.items.len() < 1 {
+            error!("Feed is invalid or empty.");
             return;
         }
+        let podcast: PodcastInfo = PodcastInfo {
+            name: feed.channel_title,
+            description: feed.channel_description,
+            url: url,
+        };
 
-        self.tracked_urls.push(url);
+        self.tracked_podcasts.push(podcast);
         match self.save() {
             Err(..) => {
                 error!("Failed to save updated config!");
@@ -90,7 +101,7 @@ pub enum PodSubCmd {
     Scan {
         /// Optional URL to scan. If not provided, will scan all configured feeds.
         #[arg(short, long)]
-        url: Option<String>,
+        url: String,
     },
 
     /// List episodes from a feed URL
@@ -100,7 +111,11 @@ pub enum PodSubCmd {
     },
 
     /// List tracked feeds in config file
-    TrackedFeeds {},
+    TrackedFeeds {
+        /// Optional - print the description of the podcast
+        #[arg(short, long, action = clap::ArgAction::SetTrue)]
+        print_descriptions: Option<bool>,
+    },
 
     /// Pull the latest episode
     PullLatest {
@@ -125,35 +140,21 @@ fn add_feed(cfg: &mut PodConfig, url: &String) {
     cfg.add_tracked_url(url.to_string());
 }
 
-/// Scan a given url or list of urls.
-fn scan(url: Option<String>, tracks: Option<usize>) -> usize {
-    let mut feed_urls = Vec::new();
-    if let Some(url) = url {
-        debug!("Scanning feed at {}", url);
-        feed_urls.push(url);
-    } else {
-        debug!("Scanning all configured feeds...");
-        warn!("No URL provided, scanning all feeds is not implemented yet.");
-        return 0;
-    }
-
+/// Scan a given url for RSS Feed info
+fn scan(url: String, tracks: Option<usize>) -> RSSFeed {
     let max_tracks: usize;
     if let Some(tracks) = tracks {
         max_tracks = tracks;
     } else {
-        max_tracks = 25;
+        max_tracks = DEFAULT_SCAN_MAX_TRACKS;
     }
 
-    let mut num_tracks_scanned: usize = 0;
-    for feed_url in feed_urls {
-        debug!("Fetching feed from {}", feed_url);
-        let feed = read_from_url(&feed_url, max_tracks).expect("Failed to get feed");
-        debug!("Parsed feed: {:?}", feed);
-        info!("Fetched feed {} from {}", feed.channel_title, feed_url);
-        num_tracks_scanned += feed.items.len();
-    }
+    debug!("Fetching feed from {}", url);
+    let fetched_feed = read_from_url(&url, max_tracks).expect("Failed to get feed");
+    debug!("Parsed feed: {:?}", fetched_feed);
+    info!("Fetched feed {} from {}", fetched_feed.channel_title, url);
 
-    num_tracks_scanned
+    fetched_feed
 }
 
 fn list(url: String) {
@@ -168,9 +169,12 @@ fn list(url: String) {
     }
 }
 
-fn list_tracked_feeds(cfg: &PodConfig) {
-    for url in &cfg.tracked_urls {
-        println!("{}", url);
+fn list_tracked_feeds(cfg: &PodConfig, show_descriptions: bool) {
+    for pod in &cfg.tracked_podcasts {
+        println!("* {} (URL: {})", pod.name, pod.url);
+        if show_descriptions {
+            println!("\n{}", pod.description,);
+        }
     }
 }
 
@@ -201,9 +205,16 @@ pub fn handle(cmd: &PodCmd) {
         Some(PodSubCmd::List { ref url }) => {
             list(url.clone());
         }
-        Some(PodSubCmd::TrackedFeeds {}) => {
-            list_tracked_feeds(&cfg);
-        }
+        Some(PodSubCmd::TrackedFeeds {
+            ref print_descriptions,
+        }) => match print_descriptions {
+            Some(desc) => {
+                list_tracked_feeds(&cfg, *desc);
+            }
+            None => {
+                list_tracked_feeds(&cfg, false);
+            }
+        },
         Some(PodSubCmd::PullLatest {
             ref url,
             ref target_dir,
